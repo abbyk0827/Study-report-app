@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: java-silver-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: app_db
+      TZ: "Asia/Tokyo"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # 初期データ流し込み用
+
+  backend:
+    build: ./backend
+    container_name: java-silver-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app  # ローカルのコード変更をコンテナに同期
+    depends_on:
+      - db
+    environment:
+      # FastAPIからDBに繋ぐためのURL
+      - DATABASE_URL=postgresql://user:password@db:5432/app_db
+  
+  frontend:
+    build: ./frontend
+    container_name: java-silver-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # node_modulesはコンテナ内のものを優先
+    depends_on:
+      - backend
+    environment:
+      - WATCHPACK_POLLING=true # WSL環境でファイルの変更検知を安定させるおまじない
+
+volumes:
+  postgres_data:

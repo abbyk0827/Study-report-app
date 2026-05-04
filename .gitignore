@@ -1,0 +1,21 @@
+# .gitignore (プロジェクトルート用)
+
+# Python関連の不要ファイル
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# OSのシステムファイル
+.DS_Store
+Thumbs.db
+
+# Dockerのデータボリューム（重要: DBのデータ自体はGitに上げない）
+postgres_data/
+
+# 環境変数ファイル（パスワード等が書かれたファイルは絶対に上げない）
+.env
