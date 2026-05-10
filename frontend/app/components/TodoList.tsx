@@ -22,7 +22,7 @@ export default function TodoList({ tasks = [], onRefresh, onReorder, userId }: P
   const handleAdd = async () => {
     if (!newTaskTitle.trim()) return;
     
-    await fetch("${API_URL}/tasks", {
+    await fetch(`${API_URL}/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       // 🔽 修正2：固定の "1" をやめて、ログイン中のユーザーのID（Number(userId)）を送る
@@ -66,7 +66,7 @@ export default function TodoList({ tasks = [], onRefresh, onReorder, userId }: P
     onReorder(newTasks);
 
     const reorderPayload = newTasks.map((task, index) => ({ id: task.id, sort_order: index }));
-    await fetch("${API_URL}/tasks/reorder", {
+    await fetch(`${API_URL}/tasks/reorder`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(reorderPayload),
