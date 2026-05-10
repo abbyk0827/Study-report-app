@@ -1,22 +1,38 @@
+// frontend/app/components/TodoList.tsx
 "use client";
 
 import { useState } from "react";
 
 type Task = { id: number; title: string; target_minutes: number; sort_order: number };
-type Props = { tasks: Task[]; onRefresh: () => void; onReorder: (tasks: Task[]) => void; };
 
-export default function TodoList({ tasks, onRefresh, onReorder }: Props) {
+// 🔽 修正1：親（page.tsx）から渡される userId を受け取れるように型（Props）を追加
+type Props = { 
+  tasks: Task[]; 
+  onRefresh: () => void; 
+  onReorder: (tasks: Task[]) => void; 
+  userId: string | null; // 👈 これを追加
+};
+
+export default function TodoList({ tasks = [], onRefresh, onReorder, userId }: Props) {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState("");
-
+  
   const handleAdd = async () => {
     if (!newTaskTitle.trim()) return;
+    
     await fetch("http://localhost:8000/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: 1, title: newTaskTitle, target_minutes: 60, sort_order: tasks.length }),
+      // 🔽 修正2：固定の "1" をやめて、ログイン中のユーザーのID（Number(userId)）を送る
+      body: JSON.stringify({ 
+        user_id: Number(userId), 
+        title: newTaskTitle, 
+        target_minutes: 60, 
+        sort_order: tasks?.length 
+      }),
     });
+    
     setNewTaskTitle("");
     onRefresh();
   };
@@ -58,7 +74,7 @@ export default function TodoList({ tasks, onRefresh, onReorder }: Props) {
 
   return (
     <div className="custom-card">
-      <h3 className="font-bold mb-4 text-gray-300">TODO List</h3>
+      <h3 className="font-bold mb-4 text-[var(--text-main)]">TODO List</h3>
       <div className="flex gap-2 mb-6">
         <input 
           className="input-field flex-1"
@@ -69,32 +85,32 @@ export default function TodoList({ tasks, onRefresh, onReorder }: Props) {
       </div>
 
       <ul className="space-y-3">
-        {tasks.map((task, index) => (
+        {tasks?.map((task, index) => (
           <li 
             key={task.id} draggable
             onDragStart={(e) => handleDragStart(e, index)}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, index)}
-            className="flex justify-between items-center bg-[#2C2C2E] p-3 rounded-xl border border-gray-700 cursor-move hover:border-gray-500 transition-colors"
+            className="flex justify-between items-center bg-[var(--bg-main)] p-3 rounded-xl border border-[var(--border-color)] cursor-move hover:border-[var(--accent-primary)] transition-colors"
           >
             <div className="flex items-center gap-3">
-              <span className="text-gray-500">≡</span>
+              <span className="text-[var(--text-muted)]">≡</span>
               {editingTaskId === task.id ? (
                 <input 
                   className="input-field py-1"
                   value={editTitle} onChange={(e) => setEditTitle(e.target.value)} autoFocus
                 />
               ) : (
-                <span className="font-medium text-gray-200">{task.title}</span>
+                <span className="font-medium text-[var(--text-main)]">{task.title}</span>
               )}
             </div>
             <div className="flex gap-2">
               {editingTaskId === task.id ? (
-                <button onClick={() => handleSaveEdit(task.id)} className="text-green-400 text-sm">保存</button>
+                <button onClick={() => handleSaveEdit(task.id)} className="text-green-500 font-bold text-sm">保存</button>
               ) : (
                 <>
-                  <button onClick={() => { setEditingTaskId(task.id); setEditTitle(task.title); }} className="text-gray-400 hover:text-white text-sm">編集</button>
-                  <button onClick={() => handleDelete(task.id)} className="text-gray-400 hover:text-red-400 text-sm">削除</button>
+                  <button onClick={() => { setEditingTaskId(task.id); setEditTitle(task.title); }} className="text-[var(--text-muted)] hover:text-[var(--text-main)] text-sm">編集</button>
+                  <button onClick={() => handleDelete(task.id)} className="text-[var(--text-muted)] hover:text-red-500 text-sm">削除</button>
                 </>
               )}
             </div>

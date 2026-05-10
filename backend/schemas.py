@@ -1,6 +1,33 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
+# --- User Schemas ---
+class UserBase(BaseModel):
+    name: str
+    email: str
+    icon_emoji: str
+    focus_message: str
+
+class UserCreate(UserBase):
+    pass
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    icon_emoji: Optional[str] = None
+    focus_message: Optional[str] = None
+
+class UserResponse(UserBase):
+    id: int
+    class Config:
+        from_attributes = True
+
+# --- Task Schemas (既存分にリレーションを意識した構造を追加) ---
+class TaskBase(BaseModel):
+    user_id: int
+    title: str
+    target_minutes: int
+    sort_order: int = 0
+
 class TaskBase(BaseModel):
     user_id: int
     title: str
@@ -30,4 +57,4 @@ class StudyLogCreate(BaseModel):
 
 class StudyLogUpdate(BaseModel):
     actual_minutes: Optional[int] = None
-    memo: Optional[str] = None
+    task_id: Optional[int] = None
