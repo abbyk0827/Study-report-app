@@ -33,7 +33,7 @@ export default function Header() {
   // 🔽 ログイン処理
   const handleLogin = async () => {
     try {
-      const res = await fetch("${API_URL}/users/login", {
+      const res = await fetch(`${API_URL}/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: loginId, password: loginPass })
@@ -51,7 +51,7 @@ export default function Header() {
   // 🔽 ゲストログイン処理
   const handleGuestLogin = async () => {
     try {
-      const res = await fetch("${API_URL}/users/guest", { method: "POST" });
+      const res = await fetch(`${API_URL}/users/guest`, { method: "POST" });
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem("focusflow_user_id", data.user_id);
