@@ -1,6 +1,7 @@
 // frontend/app/components/StudyLogManager.tsx
 "use client";
 import { useState, useEffect } from "react";
+import { API_URL } from "@/app/config";
 
 type StudyLog = { id: number; task_id: number; actual_minutes: number; log_type: string; memo: string; };
 type Task = { id: number; title: string; };
@@ -29,8 +30,8 @@ export default function StudyLogManager({ onLogChange, userId }: Props) {
     try {
       const [logsRes, tasksRes] = await Promise.all([
         // 🔽 修正2：固定の "1" をやめて、引数の userId に変更
-        fetch(`http://localhost:8000/users/${userId}/study_logs?t=${ts}`, { cache: "no-store" }),
-        fetch(`http://localhost:8000/tasks/user/${userId}?t=${ts}`, { cache: "no-store" })
+        fetch(`${API_URL}/users/${userId}/study_logs?t=${ts}`, { cache: "no-store" }),
+        fetch(`${API_URL}/tasks/user/${userId}?t=${ts}`, { cache: "no-store" })
       ]);
       const logsData = await logsRes.json();
       const tasksData = await tasksRes.json();
@@ -47,7 +48,7 @@ export default function StudyLogManager({ onLogChange, userId }: Props) {
 
   const handleAdd = async () => {
     if (!newTask || !newMinutes) return;
-    await fetch("http://localhost:8000/study_logs", {
+    await fetch("${API_URL}/study_logs", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ task_id: newTask, actual_minutes: newMinutes, log_type: "manual" }),
     });
@@ -57,7 +58,7 @@ export default function StudyLogManager({ onLogChange, userId }: Props) {
   };
 
   const handleDelete = async (id: number) => {
-    await fetch(`http://localhost:8000/study_logs/${id}`, { method: "DELETE" });
+    await fetch(`${API_URL}/study_logs/${id}`, { method: "DELETE" });
     fetchData(); 
     onLogChange();
   };
@@ -70,7 +71,7 @@ const handleSaveEdit = async (id: number) => {
     };
 
     try {
-      const res = await fetch(`http://localhost:8000/study_logs/${id}`, {
+      const res = await fetch(`${API_URL}/study_logs/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)

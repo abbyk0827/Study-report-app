@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { API_URL } from "@/app/config";
 
 type Task = { id: number; title: string; target_minutes: number; sort_order: number };
 
@@ -21,7 +22,7 @@ export default function TodoList({ tasks = [], onRefresh, onReorder, userId }: P
   const handleAdd = async () => {
     if (!newTaskTitle.trim()) return;
     
-    await fetch("http://localhost:8000/tasks", {
+    await fetch("${API_URL}/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       // 🔽 修正2：固定の "1" をやめて、ログイン中のユーザーのID（Number(userId)）を送る
@@ -38,12 +39,12 @@ export default function TodoList({ tasks = [], onRefresh, onReorder, userId }: P
   };
 
   const handleDelete = async (id: number) => {
-    await fetch(`http://localhost:8000/tasks/${id}`, { method: "DELETE" });
+    await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" });
     onRefresh();
   };
 
   const handleSaveEdit = async (id: number) => {
-    await fetch(`http://localhost:8000/tasks/${id}`, {
+    await fetch(`${API_URL}/tasks/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: editTitle }),
@@ -65,7 +66,7 @@ export default function TodoList({ tasks = [], onRefresh, onReorder, userId }: P
     onReorder(newTasks);
 
     const reorderPayload = newTasks.map((task, index) => ({ id: task.id, sort_order: index }));
-    await fetch("http://localhost:8000/tasks/reorder", {
+    await fetch("${API_URL}/tasks/reorder", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(reorderPayload),
