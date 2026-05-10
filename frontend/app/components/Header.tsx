@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
+import { API_URL } from "@/app/config";
 
 export default function Header() {
   const pathname = usePathname();
@@ -20,7 +21,7 @@ export default function Header() {
     const storedId = localStorage.getItem("focusflow_user_id");
     if (storedId) {
       setUserId(storedId);
-      fetch(`http://localhost:8000/users/me?user_id=${storedId}`)
+      fetch(`${API_URL}/users/me?user_id=${storedId}`)
         .then(res => res.json())
         .then(data => { if(data.icon_emoji) setUserIcon(data.icon_emoji); })
         .catch(err => console.error(err));
@@ -32,7 +33,7 @@ export default function Header() {
   // 🔽 ログイン処理
   const handleLogin = async () => {
     try {
-      const res = await fetch("http://localhost:8000/users/login", {
+      const res = await fetch(`${API_URL}/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: loginId, password: loginPass })
@@ -50,7 +51,7 @@ export default function Header() {
   // 🔽 ゲストログイン処理
   const handleGuestLogin = async () => {
     try {
-      const res = await fetch("http://localhost:8000/users/guest", { method: "POST" });
+      const res = await fetch(`${API_URL}/users/guest`, { method: "POST" });
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem("focusflow_user_id", data.user_id);
