@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
-import Header from "./components/Header"; // 👈 追加
+import Header from "./components/Header";
+import { TimerProvider } from "./context/TimerContext"; // 👈 追加1：タイマーの記憶領域をインポート
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,17 +16,18 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen flex flex-col`}>
+      <body className={`${inter.className} min-h-screen flex flex-col`} suppressHydrationWarning>
         <ThemeProvider>
-          
-          {/* 🔽 コンポーネント化したヘッダーを呼び出す */}
-          <Header />
+          {/* 🔽 追加2：TimerProviderで全体を包むことで、ページを跨いでもタイマーが持続する */}
+          <TimerProvider> 
+            
+            <Header />
+            
+            <main className="flex-1 overflow-y-auto w-full pb-20 sm:pb-0">
+              {children}
+            </main>
 
-          {/* 🔽 スマホの時だけ、下部のボトムナビゲーションとコンテンツが被らないように pb-20 (余白) を追加 */}
-          <main className="flex-1 overflow-y-auto w-full pb-20 sm:pb-0">
-            {children}
-          </main>
-          
+          </TimerProvider>
         </ThemeProvider>
       </body>
     </html>

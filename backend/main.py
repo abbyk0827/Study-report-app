@@ -2,6 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import tasks, study_logs
+from routers import tasks, study_logs, users 
 
 # 🔽 追加：データベースのエンジンとテーブル定義（models）を読み込む
 from database import engine
@@ -22,6 +23,7 @@ app.add_middleware(
 
 app.include_router(tasks.router)
 app.include_router(study_logs.router)
+app.include_router(users.router)
 
 @app.get("/")
 def read_root():

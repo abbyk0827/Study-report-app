@@ -9,22 +9,48 @@ type StatData = { title: string; total_minutes: number; };
 
 export default function Statistics() {
   const [stats, setStats] = useState<StatData[]>([]);
+  // 🔽 追加：ログイン中のユーザーIDを保持するState
+  const [userId, setUserId] = useState<string | null>(null);
 
-  const fetchStats = () => {
-    fetch(`http://localhost:8000/users/1/stats?t=${new Date().getTime()}`, { cache: "no-store" })
+  // 🔽 追加：起動時にログイン状態を確認
+  useEffect(() => {
+    const storedId = localStorage.getItem("focusflow_user_id");
+    if (storedId) {
+      setUserId(storedId);
+      fetchStats(storedId);
+    }
+  }, []);
+
+  // 🔽 修正：固定の「1」ではなく、引数で受け取った id（ログインユーザー）の統計を取得する
+  const fetchStats = (id: string) => {
+    fetch(`http://localhost:8000/users/${id}/stats?t=${new Date().getTime()}`, { cache: "no-store" })
       .then(res => res.json())
-      .then(data => setStats(data))
+      .then(data => {
+        // 🛡️ 安全装置：データが配列じゃない（エラー等）場合は空にする
+        const validStats = Array.isArray(data) ? data : [];
+        setStats(validStats);
+      })
       .catch(err => console.error("APIエラー:", err));
   };
 
-  useEffect(() => { fetchStats(); }, []);
+  // 🛑 ログインしていない場合はロック画面を表示
+  if (!userId) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[70vh] text-center space-y-6 px-4">
+        <div className="text-8xl animate-pulse">🔒</div>
+        <h2 className="text-3xl font-bold text-[var(--text-main)]">Statisticsはロックされています</h2>
+        <p className="text-[var(--text-muted)] max-w-md leading-relaxed">
+          右上のアイコンをクリックしてログインしてください。
+        </p>
+      </div>
+    );
+  }
 
-  // 🔽 合計時間は stats のデータから常にリアルタイム計算される
-  const totalStudyTime = stats.reduce((sum, item) => sum + item.total_minutes, 0);
+  // 🔽 合計時間は stats のデータから常にリアルタイム計算される（オプショナルチェーンで安全に）
+  const totalStudyTime = stats?.reduce((sum, item) => sum + item.total_minutes, 0) || 0;
 
   return (
     <div className="p-4 sm:p-8 font-sans max-w-5xl mx-auto">
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* 左側：合計時間だけを大きく表示 */}
         <div className="lg:col-span-1 custom-card flex flex-col justify-center items-center text-center">
@@ -37,7 +63,7 @@ export default function Statistics() {
 
         {/* 右側：グラフ */}
         <div className="custom-card lg:col-span-2">
-          <h3 className="font-bold mb-6">Task Performance (Minutes)</h3>
+          <h3 className="font-bold mb-6 text-[var(--text-main)]">Task Performance (Minutes)</h3>
           <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -52,8 +78,8 @@ export default function Statistics() {
         </div>
       </div>
       
-      {/* マネージャーが更新されたら、fetchStatsを呼んでグラフと合計時間を再計算させる */}
-      <StudyLogManager onLogChange={fetchStats} />
+      {/* 🔽 修正：fetchStats に userId を渡すように変更 */}
+    <StudyLogManager onLogChange={() => fetchStats(userId)} userId={userId} />
     </div>
   );
 }
