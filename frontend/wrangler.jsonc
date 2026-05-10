@@ -1,5 +1,9 @@
 {
   "name": "focusflow",
+  "compatibility_date": "2026-05-10",
+  "assets": {
+    "directory": "./out"
+  },
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
