@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { API_URL } from "@/app/config";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StudyLogManager from "@/app/components/StudyLogManager";
 
@@ -23,7 +24,7 @@ export default function Statistics() {
 
   // 🔽 修正：固定の「1」ではなく、引数で受け取った id（ログインユーザー）の統計を取得する
   const fetchStats = (id: string) => {
-    fetch(`http://localhost:8000/users/${id}/stats?t=${new Date().getTime()}`, { cache: "no-store" })
+    fetch(`${API_URL}/users/${id}/stats?t=${new Date().getTime()}`, { cache: "no-store" })
       .then(res => res.json())
       .then(data => {
         // 🛡️ 安全装置：データが配列じゃない（エラー等）場合は空にする

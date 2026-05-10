@@ -3,22 +3,17 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Dockerの環境変数からDBのURLを取得（設定されていない場合のデフォルト値も用意）
-SQLALCHEMY_DATABASE_URL = os.getenv(
-    "DATABASE_URL", 
-    "postgresql://user:password@db:5432/app_db"
-)
+# 🔽 Renderの環境変数があればそれを使い、なければローカルのDocker用を使う
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@db:5432/focusflow_db")
 
-# DBエンジンの作成
+# 🔽 🛡️ 安全装置: Renderは "postgres://" を発行するが、SQLAlchemyは "postgresql://" を要求するため自動変換する
+if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
-
-# DBセッション（通信の窓口）の作成
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# モデル（設計図）のベース
 Base = declarative_base()
 
-# DB接続を管理する関数（APIが呼ばれるたびに接続し、終わったら閉じる）
 def get_db():
     db = SessionLocal()
     try:

@@ -2,9 +2,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { API_URL } from "@/app/config";
 import PomodoroTimer from "@/app/components/PomodoroTimer";
 import TodoList from "@/app/components/TodoList";
-import { useTimer } from "@/app/context/TimerContext"; // 👈 追加1：グローバルタイマーをインポート
+import { useTimer } from "@/app/context/TimerContext";
 
 type Task = { id: number; title: string; target_minutes: number; sort_order: number };
 type User = { name: string; icon_emoji: string; focus_message: string; };
@@ -35,8 +36,8 @@ export default function Home() {
 const fetchData = (id: string) => {
     const ts = new Date().getTime();
     Promise.all([
-      fetch(`http://localhost:8000/tasks/user/${id}?t=${ts}`, { cache: "no-store" }).then(res => res.json()),
-      fetch(`http://localhost:8000/users/me?user_id=${id}&t=${ts}`, { cache: "no-store" }).then(res => res.json())
+      fetch(`${API_URL}/tasks/user/${id}?t=${ts}`, { cache: "no-store" }).then(res => res.json()),
+      fetch(`${API_URL}/users/me?user_id=${id}&t=${ts}`, { cache: "no-store" }).then(res => res.json())
     ]).then(([tasksData, userData]) => {
       
       // 🛡️ 追加：安全装置（データが配列じゃない＝エラーだった場合は、空の配列にする）
@@ -57,7 +58,7 @@ const fetchData = (id: string) => {
     if (!userId) return;
     try {
       const payload = { name: editUser.name, icon_emoji: editUser.icon_emoji, focus_message: editUser.focus_message };
-      const res = await fetch(`http://localhost:8000/users/me?user_id=${userId}`, {
+      const res = await fetch(`${API_URL}/users/me?user_id=${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
