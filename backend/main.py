@@ -1,17 +1,28 @@
+# backend/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from routers import tasks, study_logs
 
-app = FastAPI()
+# 🔽 追加：データベースのエンジンとテーブル定義（models）を読み込む
+from database import engine
+import models
 
-# 🔽 ここからCORS（入場パスポート）の設定を追加 🔽
+# 🔽 追加：アプリ起動時に、データベースにテーブルが存在しなければ自動で作成する
+models.Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="FocusFlow API")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], # フロントエンド（ポート3000）からの通信を許可
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
-    allow_methods=["*"], # GETやPOSTなどすべてのメソッドを許可
-    allow_headers=["*"], # すべてのヘッダーを許可
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
+app.include_router(tasks.router)
+app.include_router(study_logs.router)
 
 @app.get("/")
 def read_root():
-    return {"message": "Java Silver Portfolio API is running!"}
+    return {"message": "FocusFlow API Structuring Complete!"}

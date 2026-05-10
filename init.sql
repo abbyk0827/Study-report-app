@@ -1,11 +1,23 @@
 -- init.sql
-CREATE TABLE tasks (
+
+-- 1. ユーザーテーブル
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    target_minutes INTEGER NOT NULL,
+    username VARCHAR(50) UNIQUE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 2. タスクテーブル（🔽 sort_order を追加！）
+CREATE TABLE tasks (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    title VARCHAR(255) NOT NULL,
+    target_minutes INTEGER NOT NULL,
+    sort_order INTEGER DEFAULT 0, 
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. 学習実績テーブル
 CREATE TABLE study_logs (
     id SERIAL PRIMARY KEY,
     task_id INTEGER REFERENCES tasks(id),
@@ -15,9 +27,5 @@ CREATE TABLE study_logs (
     completed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO tasks (title, target_minutes) VALUES 
-('Javaの基本とデータ型', 600),
-('制御構造（分岐・繰返し）', 600),
-('オブジェクト指向とクラス設計', 1200),
-('例外処理', 480),
-('Java APIとモジュールシステム', 900);
+-- 🔽 最低限必要なユーザーアカウント（ID: 1）だけを作成し、タスクは空にしておく
+INSERT INTO users (username) VALUES ('Kenta_S');
