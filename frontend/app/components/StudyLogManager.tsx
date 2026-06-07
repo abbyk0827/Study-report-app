@@ -48,7 +48,7 @@ export default function StudyLogManager({ onLogChange, userId }: Props) {
 
   const handleAdd = async () => {
     if (!newTask || !newMinutes) return;
-    await fetch("${API_URL}/study_logs", {
+    await fetch(`${API_URL}/study_logs`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ task_id: newTask, actual_minutes: newMinutes, log_type: "manual" }),
     });
