@@ -22,6 +22,8 @@ export default function TodoList({ tasks = [], onRefresh, onReorder, userId }: P
   const handleAdd = async () => {
     if (!newTaskTitle.trim()) return;
     
+    console.log("🚨 現在の API_URL の中身:", API_URL);
+
     await fetch(`${API_URL}/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
